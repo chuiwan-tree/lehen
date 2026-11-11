@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>勒痕</title>
+<style>
+  body { background: #f2efe6; color: #2b2b2b; font: 15px/1.7 -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; margin: 0; padding: 18px; }
+  #wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 6px; font-weight: 600; }
+  .intro { color: #555; margin: 0 0 14px; }
+  #out { position: relative; font: 14px/1.45 "SF Mono", Menlo, "PingFang SC", monospace; white-space: pre; overflow-x: auto; background: #fbfaf5; border: 1px solid #ddd8c8; border-radius: 6px; padding: 12px 14px; max-height: 70vh; overflow-y: auto; }
+  #out .cmd { color: #8a5a20; }
+  #out .old { color: #8b8b8b; }
+  #bar { margin: 10px 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #line { font: 15px "SF Mono", Menlo, "PingFang SC", monospace; padding: 6px 10px; border: 1px solid #999; border-radius: 4px; min-width: 260px; flex: 1; }
+  button { font: inherit; padding: 4px 12px; border: 1px solid #999; background: #fff; border-radius: 4px; cursor: pointer; }
+  .hint { color: #777; font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>勒痕</h1>
+  <p class="intro">一个小文字游戏。每回来做点事，做完用“走 年数”离开，过几年再来。一局四十年，十来分钟。<br>
+  在下面的框里打字，按回车。点按钮会把命令的头放进框里，后面的数自己填。</p>
+  <div id="out"></div>
+  <div id="bar">
+    <input id="line" autocomplete="off" placeholder="比如：系 布 1.2 2">
+    <button id="go">做</button>
+  </div>
+  <div id="bar2" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  <p class="hint"><button id="again">再开一局</button></p>
+</div>
+<script src="le.js"></script>
+<script>
+const out = document.getElementById('out'), line = document.getElementById('line');
+let st = null;
+function show(text, cmd) {
+  out.querySelectorAll('.cur').forEach(e => { e.classList.remove('cur'); e.classList.add('old'); });
+  if (cmd) { const c = document.createElement('div'); c.className = 'cmd'; c.textContent = '> ' + cmd; out.appendChild(c); }
+  const d = document.createElement('div'); d.className = 'cur'; d.textContent = text + '\n\n'; out.appendChild(d);
+  const first = cmd ? d.previousSibling : d;
+  out.scrollTop = first.offsetTop - out.offsetTop - 4;
+}
+function start() {
+  out.innerHTML = '';
+  st = newGame(Math.floor(Math.random() * 10000));
+  show(visitText(st, []) + helpLine(st));
+}
+function run() {
+  const c = line.value.trim(); if (!c) return;
+  line.value = '';
+  show(act(st, c), c);
+  line.focus();
+}
+document.getElementById('go').onclick = run;
+line.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) run(); });
+document.getElementById('again').onclick = start;
+const heads = ['系 布 ', '系 铁丝 ', '钉 ', '刻 ', '松 ', '解 ', '走 ', '指 ', '看'];
+const bar2 = document.getElementById('bar2');
+heads.forEach(h => { const b = document.createElement('button'); b.textContent = h.trim(); b.onclick = () => { line.value = h; line.focus(); }; bar2.appendChild(b); });
+start();
+</script>
+</body>
+</html>
