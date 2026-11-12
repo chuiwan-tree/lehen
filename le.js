@@ -122,13 +122,17 @@ function draw(st, age) {
     let body = sym.repeat(n);
     const carve = here.filter(it => it.kind === '刻');
     if (carve.length) {
-      const it = carve[0], kk = rAt(st, it.h) / it.r0;
-      let word;
-      if (it.blur) word = '~'.repeat(Math.min(n, 2 + Math.trunc(kk * 2)));
-      else { const d = '-'.repeat(Math.max(0, Math.min(Math.floor(Math.trunc(3 * kk - 2) / 2), 20))); word = d + it.ch + d; }
-      const wl = word.length + (it.blur ? 0 : 1);
+      // 第二个 第 18 天：同一高度刻了几回，就并排画几个字
+      const words = []; let wl = 0;
+      for (const it of carve) {
+        const kk = rAt(st, it.h) / it.r0; let w;
+        if (it.blur) w = '~'.repeat(Math.min(n, 2 + Math.trunc(kk * 2)));
+        else { const d = '-'.repeat(Math.max(0, Math.min(Math.floor(Math.trunc(3 * kk - 2) / 2), 20))); w = d + it.ch + d; }
+        words.push(w); wl += w.length + (it.blur ? 0 : 1);
+      }
+      wl += words.length - 1;
       const side = Math.max(0, Math.floor((n - wl) / 2));
-      body = '#'.repeat(side) + word + '#'.repeat(side);
+      body = '#'.repeat(side) + words.join('#') + '#'.repeat(side);
     }
     const pad = ' '.repeat(Math.max(0, 22 - Math.floor(body.length / 2)));
     lines.push(`${f1(h)}米 |${pad}${body}${mark}`);
